@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=0,user-scalable=no">
+	<title> Zombie Shoot </title>
+
+<style>
+
+.t{
+	color: white;
+	margin-left: 40%;
+}
+#b1{
+	border-radius: 50%;
+	color: white;
+	border: 1px black;
+	background-color: #ff0066;
+	height: 50px;
+	width: 12%;
+}
+#b2{
+	border-radius: 50%;
+	color: white;
+	border: 1px black;
+	background-color: #bf80ff;
+	height: 50px;
+	width: 12%;	
+}
+#b3{
+	border-radius: 50%;
+	color: white;
+	border: 1px black;
+	background-color: #bf80ff;
+	height: 50px;
+	width: 12%;	
+}
+#b4{
+	border-radius: 50%;
+	color: white;
+	border: 1px black;
+	background-color: #ff0066;
+	height: 50px;
+	width: 12%;	
+}
+
+</style>
+
+</head>
+<body bgcolor="black">
+
+<audio src="gunsound.wav" id="gs"></audio>
+<audio src="oversound.wav" id="os"></audio>
+<audio src="scream.wav" id="ss"></audio>
+
+<center>
+<canvas id="gc">
+</canvas>
+<input type="button" name="b1" id="b1" value="Shoot">
+<input type="button" name="b2" id="b2" value="Left">
+<canvas id="tc" style="border: 1px solid white;" width="160%" height="55%">
+</canvas>
+<input type="button" name="b3" id="b3" value="Right">
+<input type="button" name="b4" id="b4" value="Shoot">
+</center>
+
+<script>
+
+alert("Tap 'Shoot' or 'Space' to shoot")
+
+var c = document.querySelector("#gc");
+var t = document.querySelector("#tc");
+var cc = c.getContext("2d");
+var tt = t.getContext("2d");
+var w,h;
+
+var b1 = document.querySelector("#b1"); 
+var b2 = document.querySelector("#b2");
+var b3 = document.querySelector("#b3");
+var b4 = document.querySelector("#b4");
+
+var gs = document.querySelector("#gs");
+var os = document.querySelector("#os");
+var ss = document.querySelector("#ss");
+
+var bgImg = new Image();
+var bg = {
+	x: 0,
+	y: 0,
+	width: w,
+	height: h
+}
+bgImg.src = "bg.jpg";
+
+var tciImg = new Image();
+var tci = {
+	x: 0,
+	y: 0,
+	width: w,
+	height: h
+}
+tciImg.src = "tc.png";
+
+var bgImg2 = new Image();
+var bg2 = {
+	x: 0,
+	y: 0,
+	width: w,
+	height: h
+}
+bgImg2.src = "bg2.png";
+
+var bgImg3 = new Image();
+var bg3 = {
+	x: 0,
+	y: 0,
+	width: w,
+	height: h
+}
+bgImg3.src = "bg3.png";
+
+var zom1Img = new Image();
+var zom1 = {
+	x: w/2,
+	y: h/2,
+	width: 5/100*w,
+	height: 5/100*h 
+}
+zom1Img.src = "zom1.png";
+
+var zom2Img = new Image();
+var zom2 = {
+	x: w/2,
+	y: h/2,
+	width: 5/100*w,
+	height: 5/100*h 
+}
+zom2Img.src = "zom2.png";
+
+var zom3Img = new Image();
+var zom3 = {
+	x: w/2,
+	y: h/2,
+	width: 5/100*w,
+	height: 5/100*h 
+}
+zom3Img.src = "zom3.png";
+
+var zom4Img = new Image();
+var zom4 = {
+	x: w/2,
+	y: h/2,
+	width: 5/100*w,
+	height: 5/100*h 
+}
+zom4Img.src = "zom4.png";
+
+var chImg = new Image();
+var ch = {
+	x: w/2,
+	y: h/2,
+	width: 2/100*w,
+	height: 2/100*h
+}
+chImg.src = "ch.png";
+
+var gunImg = new Image();
+var gun = {
+	x: w/2,
+	y: h/2,
+	width: 2/100*w,
+	height: 2/100*h
+}
+gunImg.src = "gun.png";
+
+var bulletImg = new Image();
+var bullet = {
+	x: w/2,
+	y: h/2,
+	width: 10/100*w,
+	height: 10/100*h
+}
+bulletImg.src = "ammo.png";
+
+var bloodImg = new Image();
+var blood = {
+	x: 0,
+	y: 0,
+	width: w,
+	height: h
+}
+bloodImg.src = "blood.png";
+
+var zoms = [zom1,zom2];
+var zomrs = [zom3,zom4];
+
+var health = 10;
+var ammo = 12;
+var score = 0;
+var hscore = 0;
+
+document.addEventListener("keydown",controls);
+b1.addEventListener("pointerdown",sm);
+b2.addEventListener("pointerdown",lm);
+b3.addEventListener("pointerdown",rm);
+b4.addEventListener("pointerdown",sm);
+
+function lm(){
+	ch.x -= 2/100*w;
+}
+
+function rm(){
+	ch.x += 2/100*w;
+}
+
+function sm(){
+	if (ammo != 0){
+		gs.currentTime = 0;
+		gs.play();
+		ammo -= 1;
+	}	
+	if (ammo > 0){
+		gunImg.src = "gun2.png";
+		setTimeout(animate,100);
+		shoot();
+	}		
+}
+
+function controls(e){
+	if (e.keyCode == 37){
+		ch.x -= 2/100*w;
+	}
+	if (e.keyCode == 39){
+		ch.x += 2/100*w;
+	}
+	if (e.keyCode == 32){
+		if (ammo != 0){
+			gs.currentTime = 0;
+			gs.play();
+			ammo -= 1;
+		}	
+		if (ammo > 0){
+			gunImg.src = "gun2.png";
+			setTimeout(animate,100);
+			shoot();
+		}		
+	}
+}
+
+function animate(){
+	gunImg.src = "gun.png";
+}
+
+function shoot(){
+	for (var zom=0;zom<zoms.length;zom++){		
+		if (
+			zoms[zom].x <= (ch.x + ch.width/2)
+			&& ch.x <= (zoms[zom].x + zoms[zom].width/2)
+			&& zoms[zom].y <= (ch.y + ch.height)
+			&& ch.y <= (zoms[zom].y + zoms[zom].height)
+			){
+			ss.currentTime = 0;
+			ss.play();
+			score++;
+			zoms[zom].x = Math.floor(Math.random()*((2*w)+w)+w);
+		}
+	}	
+	for (var zom=0;zom<zomrs.length;zom++){		
+		if (
+			zomrs[zom].x <= (ch.x + ch.width/2)
+			&& ch.x <= (zomrs[zom].x + zomrs[zom].width/2)
+			&& zomrs[zom].y <= (ch.y + ch.height)
+			&& ch.y <= (zomrs[zom].y + zomrs[zom].height)
+			){
+			ss.currentTime = 0;
+			ss.play();
+			score++;
+			zomrs[zom].x = Math.floor(Math.random()*((-w)+(0))+0);
+		}
+	}	
+
+	if (
+		bullet.x <= (ch.x + ch.width/2)
+		&& ch.x <= (bullet.x + bullet.width/2)
+		&& bullet.y <= (ch.y + ch.height)
+		&& ch.y <= (bullet.y + bullet.height)
+	){
+		ammo = 12;
+		amov();
+	} 	
+}
+
+var s = (w/2)-(20/100*w);
+
+function amov(){
+	bullet.x = 10000;
+}
+
+function bmov(){
+	bullet.x = Math.floor(Math.random()*w);
+	setTimeout(amov,2000);
+}
+
+function over(){	
+	os.play();
+	if (ammo == 0){
+		blood.x = 0;
+		ch.x = 10000;
+		gun.x = 10000;
+	}	
+}
+
+function restart(){
+	ammo = 12;
+	ch.x = w/2;
+	ch.y = h/2 - 3/100*w;
+	gun.x = w/2;
+	gun.y = h/2 + 22/100*h;
+	blood.x = 10000;
+	if (hscore <= score){
+		hscore = score;
+	}
+	score = 0;
+}
+
+function update(){
+	zom1.x -= 0.7/100*w;
+	zom2.x -= 0.7/100*w;
+	zom3.x += 0.7/100*w;
+	zom4.x += 0.7/100*w;
+
+	gun.x = ch.x - 7/100*w;
+
+	if (ch.x >= w/2+(40/100*w)){
+		ch.x = w/2+(40/100*w);
+	}
+	if (ch.x <= 2/100*w){
+		ch.x = 2/100*w;
+	}
+
+	for (var zom=0;zom<zoms.length;zom++){		
+		if (zoms[zom].x <= 0){
+			zoms[zom].x = Math.floor(Math.random()*((2*w)-w)+w);
+		}
+	}
+
+	for (var zom=0;zom<zomrs.length;zom++){		
+		if (zomrs[zom].x >= w){
+			zomrs[zom].x = Math.floor(Math.random()*((2*-w)-(0))+0);
+		}
+	}
+
+	if (ammo == 0){
+		over();
+	}
+
+	if (ammo == 0){
+		c.addEventListener("click",restart);
+	}
+	if (ammo > 0){
+		c.removeEventListener("click",restart);
+	}	
+}
+
+setInterval(bmov,Math.random()*(10000-5000)+5000);
+
+function render(){
+	cc.drawImage(bgImg,bg.x,bg.y,bg.width,bg.height);
+	cc.drawImage(zom1Img,zom1.x,zom1.y,zom1.width,zom1.height);
+	cc.drawImage(zom2Img,zom2.x,zom2.y,zom2.width,zom2.height);
+	cc.drawImage(zom3Img,zom3.x,zom3.y,zom3.width,zom3.height);
+	cc.drawImage(zom4Img,zom4.x,zom4.y,zom4.width,zom4.height);
+
+	cc.drawImage(bgImg2,bg2.x,bg2.y,bg2.width,bg2.height);
+	cc.drawImage(bgImg3,bg3.x,bg3.y,bg3.width,bg3.height);
+
+	cc.drawImage(bulletImg,bullet.x,bullet.y,bullet.width,bullet.height);
+
+	cc.drawImage(chImg,ch.x,ch.y,ch.width,ch.height);
+	cc.drawImage(gunImg,gun.x,gun.y,gun.width,gun.height);
+
+	cc.drawImage(bloodImg,blood.x,blood.y,blood.width,blood.height);
+
+	tt.drawImage(tciImg,tci.x,tci.y);	
+
+	tt.fillStyle = "white";
+	tt.font = "17px white";
+	tt.fillText("Ammo: "+ammo,40,12);
+	tt.fillText("Score: "+score,40,32);
+	tt.fillText("HighScore: "+hscore,40,52);		
+}
+
+function loop(){
+	update();
+	render();
+}
+
+setInterval(loop,1000/60);
+
+window.onload = function(){
+	init();
+	window.addEventListener("resize",init);
+}
+
+function init(){
+	w = window.innerWidth - 20;
+	h = window.innerHeight - 100;
+	c.width = w;
+	c.height = h;
+	bg.x = 0;
+	bg.y = 0;
+	bg.width = w;
+	bg.height = h;
+	bg2.x = 0;
+	bg2.y = 0;
+	bg2.width = w;
+	bg2.height = h;
+	bg3.x = 0;
+	bg3.y = 0;
+	bg3.width = w;
+	bg3.height = h;	
+	zom1.x = Math.floor(Math.random()*((2*w)-w)+w);
+	zom1.y = h/2 - (16/100*h);
+	zom1.width = 20/100*w;
+	zom1.height = 30/100*h;	
+	zom2.x = Math.floor(Math.random()*((2*w)-w)+w);
+	zom2.y = h/2 - (15/100*h);
+	zom2.width = 20/100*w;
+	zom2.height = 30/100*h;	
+	zom3.x = Math.floor(Math.random()*((-w)-(0))+0);
+	zom3.y = h/2 - (14/100*h);
+	zom3.width = 20/100*w;
+	zom3.height = 30/100*h;	
+	zom4.x = Math.floor(Math.random()*((-w)-(0))+0);
+	zom4.y = h/2 - (13/100*h);
+	zom4.width = 20/100*w;
+	zom4.height = 30/100*h;			
+	ch.x = w/2;
+	ch.y = h/2 - 3/100*w;
+	ch.width = 12/100*w;
+	ch.height = 10/100*h;
+	gun.x = w/2;
+	gun.y = h/2 + 22/100*h;
+	gun.width = 45/100*w;
+	gun.height = 30/100*h;	
+	blood.x = 10000;
+	blood.y = 0;
+	blood.width = w;
+	blood.height = h;
+	bullet.x = 10000;
+	bullet.y = h/2 - (3/100*h);
+	bullet.width = 13/100*w;
+	bullet.height = 13/100*h;		
+}
+
+</script>
+
+</body>
+</html>
